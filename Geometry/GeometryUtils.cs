@@ -159,9 +159,9 @@ public static class GeometryUtils {
 	/// <param name="a">First point.</param>
 	/// <param name="b">Second point.</param>
 	/// <param name="c">Third point.</param>
-	/// <param name="epsilon">Tolerance for the test (default: Constants.NumericalEpsilon).</param>
+	/// <param name="epsilon">Tolerance for the test (default: 1e-10).</param>
 	/// <returns>True if the points are collinear within the tolerance; otherwise false.</returns>
-	public static bool AreCollinear(Vector2 a, Vector2 b, Vector2 c, double epsilon = Constants.NumericalEpsilon) {
+	public static bool AreCollinear(Vector2 a, Vector2 b, Vector2 c, double epsilon = 1e-10) {
 		double area = Math.Abs(TriangleArea(a, b, c));
 
 		return area < epsilon;
