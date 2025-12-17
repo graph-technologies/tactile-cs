@@ -112,6 +112,23 @@ public readonly struct Vector2(double x, double y) : IEquatable<Vector2> {
 
 
 	/// <summary>
+	/// Returns the 2D cross product (z-component of the 3D cross product) of this vector with another.
+	/// </summary>
+	/// <param name="other">The other vector.</param>
+	/// <returns>The scalar cross product (X * other.Y - Y * other.X).</returns>
+	public double Cross(in Vector2 other) => (X * other.Y) - (Y * other.X);
+
+
+	/// <summary>
+	/// Returns the 2D cross product (z-component of the 3D cross product) of two vectors.
+	/// </summary>
+	/// <param name="a">First vector.</param>
+	/// <param name="b">Second vector.</param>
+	/// <returns>The scalar cross product (a.X * b.Y - a.Y * b.X).</returns>
+	public static double Cross(in Vector2 a, in Vector2 b) => (a.X * b.Y) - (a.Y * b.X);
+
+
+	/// <summary>
 	/// Returns a normalized (unit length) copy of this vector. If the vector is zero-length, the zero vector is returned.
 	/// </summary>
 	/// <returns>A unit-length copy of this vector, or <see cref="Zero"/> if this vector is zero-length.</returns>
@@ -120,6 +137,67 @@ public readonly struct Vector2(double x, double y) : IEquatable<Vector2> {
 
 		// Avoid division by zero.
 		return len <= double.Epsilon ? Zero : new Vector2(X / len, Y / len);
+	}
+
+
+	/// <summary>
+	/// Returns a vector perpendicular to this vector (rotated 90 degrees counter-clockwise).
+	/// </summary>
+	/// <returns>A perpendicular vector (-Y, X).</returns>
+	public Vector2 Perpendicular() => new(-Y, X);
+
+
+	/// <summary>
+	/// Returns the angle of this vector in radians, measured counter-clockwise from the positive X axis.
+	/// </summary>
+	/// <returns>The angle in radians, in the range [-π, π].</returns>
+	public double Angle() => Math.Atan2(Y, X);
+
+
+	/// <summary>
+	/// Returns the angle in radians between this vector and another vector.
+	/// </summary>
+	/// <param name="other">The other vector.</param>
+	/// <returns>The angle between the vectors in radians, in the range [0, π].</returns>
+	public double AngleTo(in Vector2 other) {
+		double dot   = Dot(other);
+		double cross = Cross(other);
+
+		return Math.Atan2(cross, dot);
+	}
+
+
+	/// <summary>
+	/// Linearly interpolates between this vector and another.
+	/// </summary>
+	/// <param name="other">The target vector.</param>
+	/// <param name="t">The interpolation factor, typically in the range [0, 1].</param>
+	/// <returns>A vector interpolated between this and <paramref name="other"/>.</returns>
+	public Vector2 Lerp(in Vector2 other, double t) => new(X + ((other.X - X) * t), Y + ((other.Y - Y) * t));
+
+
+	/// <summary>
+	/// Returns the reflection of this vector across a normal vector.
+	/// </summary>
+	/// <param name="normal">The normal vector to reflect across (should be normalized).</param>
+	/// <returns>The reflected vector.</returns>
+	public Vector2 Reflect(in Vector2 normal) {
+		double dot = Dot(normal);
+
+		return new Vector2(X - (2.0 * dot * normal.X), Y - (2.0 * dot * normal.Y));
+	}
+
+
+	/// <summary>
+	/// Returns this vector rotated by the specified angle in radians.
+	/// </summary>
+	/// <param name="radians">The rotation angle in radians.</param>
+	/// <returns>The rotated vector.</returns>
+	public Vector2 Rotate(double radians) {
+		double cos = Math.Cos(radians);
+		double sin = Math.Sin(radians);
+
+		return new Vector2((X * cos) - (Y * sin), (X * sin) + (Y * cos));
 	}
 
 

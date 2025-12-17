@@ -275,6 +275,133 @@ public sealed class Polygon(IEnumerable<Vector2> vertices) {
 
 
 	/// <summary>
+	/// Returns a new polygon with vertices in reverse order.
+	/// </summary>
+	/// <returns>A new polygon with reversed vertex order.</returns>
+	public Polygon Reverse() {
+		List<Vector2> reversed = new(_Vertices);
+		reversed.Reverse();
+
+		return new Polygon(reversed);
+	}
+
+
+	/// <summary>
+	/// Computes the centroid (center of mass) of the polygon.
+	/// </summary>
+	/// <returns>The centroid as a Vector2.</returns>
+	/// <remarks>
+	/// Uses the standard centroid formula for polygons. For a valid polygon,
+	/// this gives the geometric center. Time complexity: O(n).
+	/// </remarks>
+	public Vector2 Centroid() {
+		if (_Vertices.Count == 0) {
+			return Vector2.Zero;
+		}
+
+		double area = 0.0;
+		double cx   = 0.0;
+		double cy   = 0.0;
+
+		for (int i = 0; i < _Vertices.Count; i++) {
+			Vector2 a     = _Vertices[i];
+			Vector2 b     = _Vertices[(i + 1) % _Vertices.Count];
+			double  cross = (a.X * b.Y) - (b.X * a.Y);
+			area += cross;
+			cx   += (a.X + b.X) * cross;
+			cy   += (a.Y + b.Y) * cross;
+		}
+
+		area *= 0.5;
+
+		if (Math.Abs(area) < 1e-10) {
+			// Degenerate polygon, return average of vertices
+			double sumX = 0.0;
+			double sumY = 0.0;
+
+			foreach (Vector2 v in _Vertices) {
+				sumX += v.X;
+				sumY += v.Y;
+			}
+
+			return new Vector2(sumX / _Vertices.Count, sumY / _Vertices.Count);
+		}
+
+		double factor = 1.0 / (6.0 * area);
+
+		return new Vector2(cx * factor, cy * factor);
+	}
+
+
+	/// <summary>
+	/// Computes the axis-aligned bounding box of the polygon.
+	/// </summary>
+	/// <returns>A tuple containing (minX, minY, maxX, maxY).</returns>
+	public (double minX, double minY, double maxX, double maxY) BoundingBox() {
+		if (_Vertices.Count == 0) {
+			return (0, 0, 0, 0);
+		}
+
+		double minX = _Vertices[0].X;
+		double minY = _Vertices[0].Y;
+		double maxX = _Vertices[0].X;
+		double maxY = _Vertices[0].Y;
+
+		for (int i = 1; i < _Vertices.Count; i++) {
+			Vector2 v = _Vertices[i];
+			minX = Math.Min(minX, v.X);
+			minY = Math.Min(minY, v.Y);
+			maxX = Math.Max(maxX, v.X);
+			maxY = Math.Max(maxY, v.Y);
+		}
+
+		return (minX, minY, maxX, maxY);
+	}
+
+
+	/// <summary>
+	/// Tests whether a point is inside the polygon using the winding number algorithm.
+	/// </summary>
+	/// <param name="point">The point to test.</param>
+	/// <returns>True if the point is inside or on the boundary of the polygon; otherwise false.</returns>
+	/// <remarks>
+	/// Uses the winding number algorithm which works for both convex and concave polygons.
+	/// Time complexity: O(n) where n is the number of vertices.
+	/// </remarks>
+	public bool Contains(Vector2 point) {
+		int windingNumber = 0;
+
+		for (int i = 0; i < _Vertices.Count; i++) {
+			Vector2 a = _Vertices[i];
+			Vector2 b = _Vertices[(i + 1) % _Vertices.Count];
+
+			if (a.Y <= point.Y) {
+				if (b.Y > point.Y) {
+					// Upward crossing
+					double cross = ((b.X - a.X) * (point.Y - a.Y)) - ((point.X - a.X) * (b.Y - a.Y));
+
+					if (cross > 0) {
+						windingNumber++;
+					}
+				}
+			}
+			else {
+				if (b.Y <= point.Y) {
+					// Downward crossing
+					double cross = ((b.X - a.X) * (point.Y - a.Y)) - ((point.X - a.X) * (b.Y - a.Y));
+
+					if (cross < 0) {
+						windingNumber--;
+					}
+				}
+			}
+		}
+
+		return windingNumber != 0;
+	}
+
+
+	/// <summary>
 	/// Enumeration representing the orientation of a polygon's vertices.
 	/// </summary>
 	public enum Orientation {

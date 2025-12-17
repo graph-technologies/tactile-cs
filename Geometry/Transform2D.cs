@@ -81,6 +81,16 @@ public readonly struct Transform2D {
 		}
 	}
 
+	/// <summary>
+	/// The determinant of the transform matrix.
+	/// </summary>
+	/// <returns>The determinant value (A * E - B * D).</returns>
+	public double Determinant {
+		get {
+			return (A * E) - (B * D);
+		}
+	}
+
 
 	/// <summary>
 	/// Creates a new affine transform from the specified matrix elements.
@@ -143,6 +153,119 @@ public readonly struct Transform2D {
 		double d = (t1.D * t2.A) + (t1.E * t2.D);
 		double e = (t1.D * t2.B) + (t1.E * t2.E);
 		double f = (t1.D * t2.C) + (t1.E * t2.F) + t1.F;
+
+		return new Transform2D(a, b, c, d, e, f);
+	}
+
+
+	/// <summary>
+	/// Creates a translation transform.
+	/// </summary>
+	/// <param name="tx">Translation along the X axis.</param>
+	/// <param name="ty">Translation along the Y axis.</param>
+	/// <returns>A <see cref="Transform2D"/> representing the translation.</returns>
+	public static Transform2D CreateTranslation(double tx, double ty) => new(1, 0, tx, 0, 1, ty);
+
+
+	/// <summary>
+	/// Creates a translation transform from a vector.
+	/// </summary>
+	/// <param name="translation">The translation vector.</param>
+	/// <returns>A <see cref="Transform2D"/> representing the translation.</returns>
+	public static Transform2D CreateTranslation(Vector2 translation) => new(1, 0, translation.X, 0, 1, translation.Y);
+
+
+	/// <summary>
+	/// Creates a rotation transform.
+	/// </summary>
+	/// <param name="radians">The rotation angle in radians.</param>
+	/// <returns>A <see cref="Transform2D"/> representing the rotation about the origin.</returns>
+	public static Transform2D CreateRotation(double radians) {
+		double cos = Math.Cos(radians);
+		double sin = Math.Sin(radians);
+
+		return new Transform2D(cos, -sin, 0, sin, cos, 0);
+	}
+
+
+	/// <summary>
+	/// Creates a rotation transform about a specific point.
+	/// </summary>
+	/// <param name="radians">The rotation angle in radians.</param>
+	/// <param name="center">The center point of rotation.</param>
+	/// <returns>A <see cref="Transform2D"/> representing the rotation about <paramref name="center"/>.</returns>
+	public static Transform2D CreateRotation(double radians, Vector2 center) {
+		double cos = Math.Cos(radians);
+		double sin = Math.Sin(radians);
+
+		double tx = center.X - ((cos * center.X) - (sin * center.Y));
+		double ty = center.Y - ((sin * center.X) + (cos * center.Y));
+
+		return new Transform2D(cos, -sin, tx, sin, cos, ty);
+	}
+
+
+	/// <summary>
+	/// Creates a uniform scale transform.
+	/// </summary>
+	/// <param name="scale">The scale factor applied to both axes.</param>
+	/// <returns>A <see cref="Transform2D"/> representing uniform scaling.</returns>
+	public static Transform2D CreateScale(double scale) => new(scale, 0, 0, 0, scale, 0);
+
+
+	/// <summary>
+	/// Creates a non-uniform scale transform.
+	/// </summary>
+	/// <param name="scaleX">The scale factor along the X axis.</param>
+	/// <param name="scaleY">The scale factor along the Y axis.</param>
+	/// <returns>A <see cref="Transform2D"/> representing non-uniform scaling.</returns>
+	public static Transform2D CreateScale(double scaleX, double scaleY) => new(scaleX, 0, 0, 0, scaleY, 0);
+
+
+	/// <summary>
+	/// Creates a scale transform about a specific point.
+	/// </summary>
+	/// <param name="scaleX">The scale factor along the X axis.</param>
+	/// <param name="scaleY">The scale factor along the Y axis.</param>
+	/// <param name="center">The center point of scaling.</param>
+	/// <returns>A <see cref="Transform2D"/> representing scaling about <paramref name="center"/>.</returns>
+	public static Transform2D CreateScale(double scaleX, double scaleY, Vector2 center) {
+		double tx = center.X - (scaleX * center.X);
+		double ty = center.Y - (scaleY * center.Y);
+
+		return new Transform2D(scaleX, 0, tx, 0, scaleY, ty);
+	}
+
+
+	/// <summary>
+	/// Creates a shear transform.
+	/// </summary>
+	/// <param name="shearX">The shear factor along the X axis.</param>
+	/// <param name="shearY">The shear factor along the Y axis.</param>
+	/// <returns>A <see cref="Transform2D"/> representing the shear.</returns>
+	public static Transform2D CreateShear(double shearX, double shearY) => new(1, shearX, 0, shearY, 1, 0);
+
+
+	/// <summary>
+	/// Computes the inverse of this transform.
+	/// </summary>
+	/// <returns>The inverse transform.</returns>
+	/// <exception cref="InvalidOperationException">Thrown if the transform is not invertible (determinant is zero).</exception>
+	public Transform2D Inverse() {
+		double det = Determinant;
+
+		if (Math.Abs(det) < 1e-10) {
+			throw new InvalidOperationException("Transform is not invertible (determinant is zero).");
+		}
+
+		double invDet = 1.0 / det;
+
+		double a = E * invDet;
+		double b = -B * invDet;
+		double c = ((B * F) - (E * C)) * invDet;
+		double d = -D * invDet;
+		double e = A * invDet;
+		double f = ((D * C) - (A * F)) * invDet;
 
 		return new Transform2D(a, b, c, d, e, f);
 	}
