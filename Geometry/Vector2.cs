@@ -158,7 +158,7 @@ public readonly struct Vector2(double x, double y) : IEquatable<Vector2> {
 	/// Returns the angle in radians between this vector and another vector.
 	/// </summary>
 	/// <param name="other">The other vector.</param>
-	/// <returns>The angle between the vectors in radians, in the range [0, π].</returns>
+	/// <returns>The signed angle between the vectors in radians, in the range [-π, π].</returns>
 	public double AngleTo(in Vector2 other) {
 		double dot   = Dot(other);
 		double cross = Cross(other);

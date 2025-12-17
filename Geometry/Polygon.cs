@@ -314,7 +314,7 @@ public sealed class Polygon(IEnumerable<Vector2> vertices) {
 
 		area *= 0.5;
 
-		if (Math.Abs(area) < 1e-10) {
+		if (Math.Abs(area) < Constants.NumericalEpsilon) {
 			// Degenerate polygon, return average of vertices
 			double sumX = 0.0;
 			double sumY = 0.0;

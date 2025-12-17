@@ -19,7 +19,7 @@ public static class GeometryUtils {
 
 		double segmentLengthSquared = segmentVector.LengthSquared;
 
-		if (segmentLengthSquared < 1e-10) {
+		if (segmentLengthSquared < Constants.NumericalEpsilon) {
 			// Degenerate segment (start == end)
 			return segmentStart;
 		}
@@ -60,7 +60,7 @@ public static class GeometryUtils {
 
 		double lineLengthSquared = lineVector.LengthSquared;
 
-		if (lineLengthSquared < 1e-10) {
+		if (lineLengthSquared < Constants.NumericalEpsilon) {
 			// Degenerate line (point1 == point2)
 			return Vector2.Distance(point, linePoint1);
 		}
@@ -92,7 +92,7 @@ public static class GeometryUtils {
 		double qpxr = Vector2.Cross(qp, r);
 
 		// Check if segments are parallel or collinear
-		if (Math.Abs(rxs) < 1e-10) {
+		if (Math.Abs(rxs) < Constants.NumericalEpsilon) {
 			return false;
 		}
 
@@ -128,7 +128,7 @@ public static class GeometryUtils {
 		double rxs = Vector2.Cross(r, s);
 
 		// Check if lines are parallel
-		if (Math.Abs(rxs) < 1e-10) {
+		if (Math.Abs(rxs) < Constants.NumericalEpsilon) {
 			return false;
 		}
 
@@ -181,7 +181,7 @@ public static class GeometryUtils {
 
 		double lineLengthSquared = lineVector.LengthSquared;
 
-		if (lineLengthSquared < 1e-10) {
+		if (lineLengthSquared < Constants.NumericalEpsilon) {
 			// Degenerate line
 			return linePoint1;
 		}
@@ -203,7 +203,7 @@ public static class GeometryUtils {
 	public static Vector2 Circumcenter(Vector2 a, Vector2 b, Vector2 c) {
 		double d = 2.0 * (((a.X - c.X) * (b.Y - c.Y)) - ((a.Y - c.Y) * (b.X - c.X)));
 
-		if (Math.Abs(d) < 1e-10) {
+		if (Math.Abs(d) < Constants.NumericalEpsilon) {
 			throw new ArgumentException("Points are collinear, circumcenter is undefined.");
 		}
 

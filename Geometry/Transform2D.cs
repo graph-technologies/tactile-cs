@@ -254,7 +254,7 @@ public readonly struct Transform2D {
 	public Transform2D Inverse() {
 		double det = Determinant;
 
-		if (Math.Abs(det) < 1e-10) {
+		if (Math.Abs(det) < Constants.NumericalEpsilon) {
 			throw new InvalidOperationException("Transform is not invertible (determinant is zero).");
 		}
 
