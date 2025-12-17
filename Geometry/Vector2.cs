@@ -136,7 +136,7 @@ public readonly struct Vector2(double x, double y) : IEquatable<Vector2> {
 		double len = Length;
 
 		// Avoid division by zero.
-		return len <= double.Epsilon ? Zero : new Vector2(X / len, Y / len);
+		return len <= Constants.NumericalEpsilon ? Zero : new Vector2(X / len, Y / len);
 	}
 
 
