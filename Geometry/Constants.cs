@@ -76,6 +76,11 @@ public static class Constants {
 	/// </summary>
 	public static double AreaEpsilon { get; set; } = AreaEpsilonDefault;
 
+	/// <summary>
+	/// Small epsilon used for numerical stability checks in matrix operations, determinants, and geometric calculations.
+	/// </summary>
+	public const double NumericalEpsilon = 1e-10;
+
 
 	/// <summary>
 	/// Resets all runtime-configurable tolerances to their default values.
