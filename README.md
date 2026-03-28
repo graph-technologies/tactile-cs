@@ -60,8 +60,8 @@ if (origin is not null) {
 ## Build
 
 ```bash
-dotnet build /home/runner/work/tactile-cs/tactile-cs/TactileCs.csproj
-dotnet test /home/runner/work/tactile-cs/tactile-cs/tactile-cs.slnx
+dotnet build TactileCs.csproj
+dotnet test tactile-cs.slnx
 ```
 
 ## License
