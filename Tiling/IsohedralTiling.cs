@@ -421,4 +421,15 @@ public sealed class IsohedralTiling {
 	/// <returns>An integer colour index (small non-negative integer).</returns>
 	public int GetColour(int t1, int t2, int aspect) => (t1 + (2 * t2) + aspect) % 3;
 
+
+	/// <summary>
+	/// Builds a graph view over the tiles that intersect the given axis-aligned region.
+	/// </summary>
+	/// <param name="xMin">Minimum X coordinate of the region to sample.</param>
+	/// <param name="yMin">Minimum Y coordinate of the region to sample.</param>
+	/// <param name="xMax">Maximum X coordinate of the region to sample.</param>
+	/// <param name="yMax">Maximum Y coordinate of the region to sample.</param>
+	/// <returns>A graph wrapper that exposes cell adjacency and analysis queries.</returns>
+	public Analysis.TilingGraph CreateGraph(double xMin, double yMin, double xMax, double yMax) => new(this, new Analysis.TilingRegion(xMin, yMin, xMax, yMax));
+
 }
