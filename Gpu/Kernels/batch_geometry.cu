@@ -61,36 +61,39 @@ extern "C" int tactile_batch_distance_sq(
     int total = countA * countB;
     if (total <= 0) return 0;
 
-    double *d_ax, *d_ay, *d_bx, *d_by, *d_out;
+    int rc = 0;
+    double *d_ax = NULL, *d_ay = NULL, *d_bx = NULL, *d_by = NULL, *d_out = NULL;
     size_t sizeA = countA * sizeof(double);
     size_t sizeB = countB * sizeof(double);
     size_t sizeO = (size_t)total * sizeof(double);
 
-    if (cudaMalloc(&d_ax, sizeA) != cudaSuccess) return -1;
-    if (cudaMalloc(&d_ay, sizeA) != cudaSuccess) { cudaFree(d_ax); return -1; }
-    if (cudaMalloc(&d_bx, sizeB) != cudaSuccess) { cudaFree(d_ax); cudaFree(d_ay); return -1; }
-    if (cudaMalloc(&d_by, sizeB) != cudaSuccess) { cudaFree(d_ax); cudaFree(d_ay); cudaFree(d_bx); return -1; }
-    if (cudaMalloc(&d_out, sizeO) != cudaSuccess) { cudaFree(d_ax); cudaFree(d_ay); cudaFree(d_bx); cudaFree(d_by); return -1; }
+    if (cudaMalloc(&d_ax, sizeA) != cudaSuccess) { rc = -1; goto cleanup; }
+    if (cudaMalloc(&d_ay, sizeA) != cudaSuccess) { rc = -1; goto cleanup; }
+    if (cudaMalloc(&d_bx, sizeB) != cudaSuccess) { rc = -1; goto cleanup; }
+    if (cudaMalloc(&d_by, sizeB) != cudaSuccess) { rc = -1; goto cleanup; }
+    if (cudaMalloc(&d_out, sizeO) != cudaSuccess) { rc = -1; goto cleanup; }
 
-    cudaMemcpy(d_ax, ax, sizeA, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_ay, ay, sizeA, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_bx, bx, sizeB, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_by, by, sizeB, cudaMemcpyHostToDevice);
+    if (cudaMemcpy(d_ax, ax, sizeA, cudaMemcpyHostToDevice) != cudaSuccess) { rc = -3; goto cleanup; }
+    if (cudaMemcpy(d_ay, ay, sizeA, cudaMemcpyHostToDevice) != cudaSuccess) { rc = -3; goto cleanup; }
+    if (cudaMemcpy(d_bx, bx, sizeB, cudaMemcpyHostToDevice) != cudaSuccess) { rc = -3; goto cleanup; }
+    if (cudaMemcpy(d_by, by, sizeB, cudaMemcpyHostToDevice) != cudaSuccess) { rc = -3; goto cleanup; }
 
-    int blockSize = 256;
-    int gridSize = (total + blockSize - 1) / blockSize;
-    kernel_batch_distance_sq<<<gridSize, blockSize>>>(d_ax, d_ay, countA, d_bx, d_by, countB, d_out);
-
-    cudaError_t err = cudaDeviceSynchronize();
-    if (err != cudaSuccess)
     {
-        cudaFree(d_ax); cudaFree(d_ay); cudaFree(d_bx); cudaFree(d_by); cudaFree(d_out);
-        return -2;
+        int blockSize = 256;
+        int gridSize = (total + blockSize - 1) / blockSize;
+        kernel_batch_distance_sq<<<gridSize, blockSize>>>(d_ax, d_ay, countA, d_bx, d_by, countB, d_out);
     }
 
-    cudaMemcpy(outDistSq, d_out, sizeO, cudaMemcpyDeviceToHost);
-    cudaFree(d_ax); cudaFree(d_ay); cudaFree(d_bx); cudaFree(d_by); cudaFree(d_out);
-    return 0;
+    if (cudaDeviceSynchronize() != cudaSuccess) { rc = -2; goto cleanup; }
+    if (cudaMemcpy(outDistSq, d_out, sizeO, cudaMemcpyDeviceToHost) != cudaSuccess) { rc = -3; goto cleanup; }
+
+cleanup:
+    if (d_out) cudaFree(d_out);
+    if (d_by)  cudaFree(d_by);
+    if (d_bx)  cudaFree(d_bx);
+    if (d_ay)  cudaFree(d_ay);
+    if (d_ax)  cudaFree(d_ax);
+    return rc;
 }
 
 /* ======================================================================
@@ -149,35 +152,38 @@ extern "C" int tactile_batch_point_in_polygon(
 {
     if (pointCount <= 0) return 0;
 
-    double *d_polyX, *d_polyY, *d_px, *d_py;
-    int *d_out;
+    int rc = 0;
+    double *d_polyX = NULL, *d_polyY = NULL, *d_px = NULL, *d_py = NULL;
+    int *d_out = NULL;
     size_t sizePoly = vertexCount * sizeof(double);
     size_t sizeP    = pointCount * sizeof(double);
     size_t sizeO    = pointCount * sizeof(int);
 
-    if (cudaMalloc(&d_polyX, sizePoly) != cudaSuccess) return -1;
-    if (cudaMalloc(&d_polyY, sizePoly) != cudaSuccess) { cudaFree(d_polyX); return -1; }
-    if (cudaMalloc(&d_px, sizeP) != cudaSuccess) { cudaFree(d_polyX); cudaFree(d_polyY); return -1; }
-    if (cudaMalloc(&d_py, sizeP) != cudaSuccess) { cudaFree(d_polyX); cudaFree(d_polyY); cudaFree(d_px); return -1; }
-    if (cudaMalloc(&d_out, sizeO) != cudaSuccess) { cudaFree(d_polyX); cudaFree(d_polyY); cudaFree(d_px); cudaFree(d_py); return -1; }
+    if (cudaMalloc(&d_polyX, sizePoly) != cudaSuccess) { rc = -1; goto cleanup; }
+    if (cudaMalloc(&d_polyY, sizePoly) != cudaSuccess) { rc = -1; goto cleanup; }
+    if (cudaMalloc(&d_px, sizeP) != cudaSuccess) { rc = -1; goto cleanup; }
+    if (cudaMalloc(&d_py, sizeP) != cudaSuccess) { rc = -1; goto cleanup; }
+    if (cudaMalloc(&d_out, sizeO) != cudaSuccess) { rc = -1; goto cleanup; }
 
-    cudaMemcpy(d_polyX, polyX, sizePoly, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_polyY, polyY, sizePoly, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_px, px, sizeP, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_py, py, sizeP, cudaMemcpyHostToDevice);
+    if (cudaMemcpy(d_polyX, polyX, sizePoly, cudaMemcpyHostToDevice) != cudaSuccess) { rc = -3; goto cleanup; }
+    if (cudaMemcpy(d_polyY, polyY, sizePoly, cudaMemcpyHostToDevice) != cudaSuccess) { rc = -3; goto cleanup; }
+    if (cudaMemcpy(d_px, px, sizeP, cudaMemcpyHostToDevice) != cudaSuccess) { rc = -3; goto cleanup; }
+    if (cudaMemcpy(d_py, py, sizeP, cudaMemcpyHostToDevice) != cudaSuccess) { rc = -3; goto cleanup; }
 
-    int blockSize = 256;
-    int gridSize = (pointCount + blockSize - 1) / blockSize;
-    kernel_point_in_polygon<<<gridSize, blockSize>>>(d_polyX, d_polyY, vertexCount, d_px, d_py, pointCount, d_out);
-
-    cudaError_t err = cudaDeviceSynchronize();
-    if (err != cudaSuccess)
     {
-        cudaFree(d_polyX); cudaFree(d_polyY); cudaFree(d_px); cudaFree(d_py); cudaFree(d_out);
-        return -2;
+        int blockSize = 256;
+        int gridSize = (pointCount + blockSize - 1) / blockSize;
+        kernel_point_in_polygon<<<gridSize, blockSize>>>(d_polyX, d_polyY, vertexCount, d_px, d_py, pointCount, d_out);
     }
 
-    cudaMemcpy(outResults, d_out, sizeO, cudaMemcpyDeviceToHost);
-    cudaFree(d_polyX); cudaFree(d_polyY); cudaFree(d_px); cudaFree(d_py); cudaFree(d_out);
-    return 0;
+    if (cudaDeviceSynchronize() != cudaSuccess) { rc = -2; goto cleanup; }
+    if (cudaMemcpy(outResults, d_out, sizeO, cudaMemcpyDeviceToHost) != cudaSuccess) { rc = -3; goto cleanup; }
+
+cleanup:
+    if (d_out)   cudaFree(d_out);
+    if (d_py)    cudaFree(d_py);
+    if (d_px)    cudaFree(d_px);
+    if (d_polyY) cudaFree(d_polyY);
+    if (d_polyX) cudaFree(d_polyX);
+    return rc;
 }
