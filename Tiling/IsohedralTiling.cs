@@ -11,6 +11,9 @@
 
 using System.Diagnostics;
 
+using Microsoft.Extensions.Logging;
+
+using TactileCs.Diagnostics;
 using TactileCs.Geometry;
 
 
@@ -23,6 +26,8 @@ namespace TactileCs.Tiling;
 /// and produce prototile polygon geometry for rendering and tiling algorithms.
 /// </summary>
 public sealed class IsohedralTiling {
+
+	static readonly ILogger<IsohedralTiling> _Logger = TactileLogger.CreateLogger<IsohedralTiling>();
 
 	/// <summary>
 	/// Specification for a single prototile edge.
@@ -204,6 +209,8 @@ public sealed class IsohedralTiling {
 		if (!_TilingTypes.TryGetValue(typeId, out TilingTypeData? data)) {
 			throw new ArgumentException($"Tiling type {typeId} is not defined.", nameof(typeId));
 		}
+
+		_Logger.LogInformation("SetType: switching to type {TypeId}", typeId);
 
 		TypeId      = typeId;
 		_Data       = data;
@@ -404,6 +411,10 @@ public sealed class IsohedralTiling {
 	public IEnumerable<(Transform2D T, int t1, int t2, int aspect)> FillRegionBounds(double xMin, double yMin, double xMax, double yMax) {
 		// For now, don't track lattice indices/aspect precisely – just return 0s.
 		Debug.Assert(_Data != null, nameof(_Data) + " != null");
+
+		_Logger.LogDebug("FillRegionBounds: [{XMin},{YMin}]→[{XMax},{YMax}]", xMin, yMin, xMax, yMax);
+
+		using var timer = PerformanceMonitor.Default.BeginOperation("IsohedralTiling.FillRegionBounds");
 
 		foreach (Transform2D t in _Data.Symmetry.FillRegion(xMin, yMin, xMax, yMax)) {
 			yield return (t, 0, 0, 0);

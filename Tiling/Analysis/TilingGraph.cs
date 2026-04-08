@@ -1,5 +1,8 @@
 // Port of concepts from Tactile (c) 2018 Craig S. Kaplan, BSD 3-Clause. See LICENSE.
 
+using Microsoft.Extensions.Logging;
+
+using TactileCs.Diagnostics;
 using TactileCs.Geometry;
 
 
@@ -11,6 +14,8 @@ namespace TactileCs.Tiling.Analysis;
 /// The graph can be queried for neighbors, distances, shortest paths, connected components, and nearest cells.
 /// </summary>
 public sealed class TilingGraph {
+
+	static readonly ILogger<TilingGraph> _Logger = TactileLogger.CreateLogger<TilingGraph>();
 
 	readonly Dictionary<int, List<TilingAdjacency>> _AdjacencyByCellId;
 	readonly Dictionary<int, TilingCell>            _CellsById;
@@ -55,9 +60,20 @@ public sealed class TilingGraph {
 
 		Tiling      = tiling;
 		Region      = region;
-		Cells       = BuildCells(tiling, region);
-		_CellsById  = Cells.ToDictionary(static cell => cell.Id);
-		_Connections = BuildConnections(Cells, out _AdjacencyByCellId);
+
+		_Logger.LogInformation("Building TilingGraph for region {Region}", region);
+
+		using (PerformanceMonitor.Default.BeginOperation("TilingGraph.BuildCells"))
+			Cells = BuildCells(tiling, region);
+
+		_CellsById = Cells.ToDictionary(static cell => cell.Id);
+
+		using (PerformanceMonitor.Default.BeginOperation("TilingGraph.BuildConnections"))
+			_Connections = BuildConnections(Cells, out _AdjacencyByCellId);
+
+		_Logger.LogInformation(
+			"TilingGraph complete: {CellCount} cells, {ConnectionCount} connections",
+			Cells.Count, _Connections.Count);
 	}
 
 
@@ -232,30 +248,37 @@ public sealed class TilingGraph {
 			return [start];
 		}
 
-		Queue<int> frontier = new();
-		Dictionary<int, int?> previousByCellId = new() {
-				[start.Id] = null
-		};
-		frontier.Enqueue(start.Id);
+		IReadOnlyList<TilingCell> path;
+		using (PerformanceMonitor.Default.BeginOperation("TilingGraph.GetShortestPath")) {
+			Queue<int> frontier = new();
+			Dictionary<int, int?> previousByCellId = new() {
+					[start.Id] = null
+			};
+			frontier.Enqueue(start.Id);
 
-		while (frontier.Count > 0) {
-			int currentId = frontier.Dequeue();
+			while (frontier.Count > 0) {
+				int currentId = frontier.Dequeue();
 
-			foreach (int neighbourId in EnumerateNeighbourIds(currentId, includeCornerNeighbours)) {
-				if (previousByCellId.ContainsKey(neighbourId)) {
-					continue;
+				foreach (int neighbourId in EnumerateNeighbourIds(currentId, includeCornerNeighbours)) {
+					if (previousByCellId.ContainsKey(neighbourId)) {
+						continue;
+					}
+
+					previousByCellId[neighbourId] = currentId;
+
+					if (neighbourId == target.Id) {
+						path = ReconstructPath(target.Id, previousByCellId);
+						_Logger.LogDebug("Shortest path {Start}->{Target}: {Hops} hops",
+							start.Id, target.Id, path.Count - 1);
+						return path;
+					}
+
+					frontier.Enqueue(neighbourId);
 				}
-
-				previousByCellId[neighbourId] = currentId;
-
-				if (neighbourId == target.Id) {
-					return ReconstructPath(target.Id, previousByCellId);
-				}
-
-				frontier.Enqueue(neighbourId);
 			}
 		}
 
+		_Logger.LogDebug("No path found {Start}->{Target}", start.Id, target.Id);
 		return [];
 	}
 
