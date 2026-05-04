@@ -29,6 +29,9 @@ public sealed class IsohedralTiling {
 
 	static readonly ILogger<IsohedralTiling> _Logger = TactileLogger.CreateLogger<IsohedralTiling>();
 
+	/// <summary>√3 / 2 — height of a unit equilateral triangle.</summary>
+	const double Sqrt3Over2 = 0.8660254037844386;
+
 	/// <summary>
 	/// Specification for a single prototile edge.
 	/// Encodes the indices of the vertices that form the edge, the edge shape id,
@@ -388,7 +391,7 @@ public sealed class IsohedralTiling {
 				// Equilateral triangle with base on the x-axis.
 				_Vertices[0] = new Vector2(0.0, 0.0);
 				_Vertices[1] = new Vector2(1.0, 0.0);
-				_Vertices[2] = new Vector2(0.5, Math.Sqrt(3.0) / 2.0);
+				_Vertices[2] = new Vector2(0.5, Sqrt3Over2);
 				break;
 
 			case 4:

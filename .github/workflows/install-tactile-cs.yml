@@ -1,0 +1,69 @@
+name: Install TactileCs
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Package version to install (use "latest" for the latest stable release)'
+        type: string
+        default: 'latest'
+      target-framework:
+        description: 'Target framework moniker (e.g. net8.0)'
+        type: string
+        default: 'net8.0'
+      install-dir:
+        description: 'Directory to extract the TactileCs DLLs into'
+        type: string
+        default: './lib/TactileCs'
+    outputs:
+      version:
+        description: 'The resolved package version that was installed'
+        value: ${{ jobs.install.outputs.version }}
+
+jobs:
+  install:
+    name: Install TactileCs ${{ inputs.version }}
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+
+    steps:
+      - name: Resolve version
+        id: resolve
+        shell: bash
+        run: |
+          if [ "${{ inputs.version }}" = "latest" ]; then
+            VERSION=$(curl -fsSL "https://api.nuget.org/v3-flatcontainer/tactilecs/index.json" \
+              | python3 -c "import sys,json; data=json.load(sys.stdin); print(data['versions'][-1])")
+          else
+            VERSION="${{ inputs.version }}"
+          fi
+          echo "VERSION=$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Download NuGet package
+        shell: bash
+        run: |
+          VERSION="${{ steps.resolve.outputs.version }}"
+          curl -fsSL \
+            "https://api.nuget.org/v3-flatcontainer/tactilecs/${VERSION}/tactilecs.${VERSION}.nupkg" \
+            -o tactilecs.nupkg
+
+      - name: Extract DLLs
+        shell: bash
+        run: |
+          TFM="${{ inputs.target-framework }}"
+          INSTALL_DIR="${{ inputs.install-dir }}"
+          mkdir -p "$INSTALL_DIR"
+          unzip -j tactilecs.nupkg "lib/${TFM}/*.dll" -d "$INSTALL_DIR"
+          echo "Installed TactileCs to $INSTALL_DIR:"
+          ls -la "$INSTALL_DIR"
+
+      - name: Smoke test (optional)
+        shell: bash
+        run: |
+          INSTALL_DIR="${{ inputs.install-dir }}"
+          echo "TactileCs DLLs installed:"
+          ls "$INSTALL_DIR"
+        continue-on-error: true

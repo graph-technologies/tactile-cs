@@ -1,5 +1,8 @@
 ﻿# TactileCs
 
+[![CI](https://github.com/graph-technologies/tactile-cs/actions/workflows/ci.yml/badge.svg)](https://github.com/graph-technologies/tactile-cs/actions/workflows/ci.yml)
+[![NuGet](https://img.shields.io/nuget/v/TactileCs.svg)](https://www.nuget.org/packages/TactileCs)
+
 C# / .NET 8 port of the core isohedral tiling geometry from Craig S. Kaplan’s
 [Tactile](https://github.com/isohedral/tactile) library.
 

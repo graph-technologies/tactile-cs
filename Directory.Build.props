@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <Authors>Ryan Hughes</Authors>
+    <Company>Graph Technologies</Company>
+    <Copyright>Copyright (c) 2025 Ryan Hughes. Derivative work of Tactile © 2018 Craig S. Kaplan.</Copyright>
+    <RepositoryUrl>https://github.com/graph-technologies/tactile-cs</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+    <PackageTags>tiling;isohedral;geometry;csharp;dotnet</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+</Project>
