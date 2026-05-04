@@ -127,29 +127,135 @@ public sealed class IsohedralTiling {
 
 
 	/// <summary>
+	/// Gets the list of all valid isohedral type identifiers supported by this library.
+	/// Contains all 81 IH-types from the Tactile catalogue.
+	/// </summary>
+	public static IReadOnlyList<int> AllTypes { get; } = new int[] {
+		1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
+		11, 12, 13, 14, 15, 16, 17, 18, 20, 21,
+		22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+		32, 33, 34, 36, 37, 38, 39, 40, 41, 42,
+		43, 44, 45, 46, 47, 49, 50, 51, 52, 53,
+		54, 55, 56, 57, 58, 59, 61, 62, 64, 66,
+		67, 68, 69, 71, 72, 73, 74, 76, 77, 78,
+		79, 81, 82, 83, 84, 85, 86, 88, 90, 91, 93
+	}.AsReadOnly();
+
+
+	/// <summary>
 	/// Registry mapping isohedral type id to its <see cref="TilingTypeData"/>.
-	/// Contains built-in type definitions (currently minimal stubs).
 	/// </summary>
 	readonly static Dictionary<int, TilingTypeData> _TilingTypes = new();
 
 
 	/// <summary>
-	/// Static initializer populates the built-in tiling type table.
-	/// This currently includes minimal example entries and should be extended
-	/// with the full set of isohedral type data from the original Tactile tables.
+	/// Generates sequential edge specifications for an N-gon.
+	/// Edge i connects vertex i to vertex (i+1) % n with shape id 0 and no reversal.
+	/// </summary>
+	static EdgeSpec[] MakeEdges(int n) {
+		EdgeSpec[] edges = new EdgeSpec[n];
+		for (int i = 0; i < n; i++) {
+			edges[i] = new EdgeSpec(i, (i + 1) % n, 0, false);
+		}
+		return edges;
+	}
+
+
+	/// <summary>
+	/// Static initializer populates the built-in tiling type table with all 81 isohedral types.
+	/// Data is sourced from the upstream Tactile C++ library by Craig S. Kaplan.
 	/// </summary>
 	static IsohedralTiling() {
-		// TODO: extend this table to all isohedral types from the original Tactile data.
+		SymmetryGroup s = new(new Vector2(1, 0), new Vector2(0, 1));
 
-		// Example: Type 1 – simple parallelogram tiling as a stub.
-		_TilingTypes[1] = new TilingTypeData {
-				EdgeCount          = 4,
-				DistinctEdgeShapes = 1,
-				VertexCount        = 4,
-				Edges              = [new EdgeSpec(0, 1, 0, false), new EdgeSpec(1, 2, 0, false), new EdgeSpec(2, 3, 0, false), new EdgeSpec(3, 0, 0, false)],
-				DefaultParams      = [],
-				Symmetry           = new SymmetryGroup(new Vector2(1, 0), new Vector2(0, 1))
-		};
+		// ── Six-vertex types ──────────────────────────────────────────────────────
+		_TilingTypes[1]  = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 3, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [0.12239750492, 0.5, 0.143395479017, 0.625], Symmetry = s };
+		_TilingTypes[2]  = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 3, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [0.12239750492, 0.5, 0.225335752741, 0.225335752741], Symmetry = s };
+		_TilingTypes[3]  = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 4, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [0.12239750492, 0.5, 0.225335752741, 0.625], Symmetry = s };
+		_TilingTypes[4]  = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 5, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [0.12239750492, 0.5, 0.315470053838, 0.5, 0.315470053838, 0.5], Symmetry = s };
+		_TilingTypes[5]  = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 4, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [0.12239750492, 0.5, 0.225335752741, 0.225335752741, 0.5], Symmetry = s };
+		_TilingTypes[6]  = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 4, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [0.12239750492, 0.5, 0.225335752741, 0.625, 0.5], Symmetry = s };
+		_TilingTypes[8]  = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 3, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [0.12239750492, 0.5, 0.225335752741], Symmetry = s };
+		_TilingTypes[9]  = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 1, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [], Symmetry = s };
+		_TilingTypes[15] = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 3, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [0.230769230769, 0.5, 0.225335752741], Symmetry = s };
+		_TilingTypes[16] = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 4, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [0.230769230769, 0.5, 0.225335752741, 0.5], Symmetry = s };
+		_TilingTypes[18] = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 3, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [0.141304, 0.465108, 0.534891], Symmetry = s };
+		_TilingTypes[66] = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 2, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [0.12239750492, 0.5], Symmetry = s };
+		_TilingTypes[67] = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 2, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [0.12239750492, 0.5], Symmetry = s };
+		_TilingTypes[68] = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 1, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [0.5], Symmetry = s };
+		_TilingTypes[69] = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 1, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [0.5], Symmetry = s };
+		_TilingTypes[71] = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 3, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [], Symmetry = s };
+		_TilingTypes[72] = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 2, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [], Symmetry = s };
+		_TilingTypes[73] = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 2, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [], Symmetry = s };
+		_TilingTypes[74] = new TilingTypeData { EdgeCount = 6, DistinctEdgeShapes = 2, VertexCount = 6, Edges = MakeEdges(6), DefaultParams = [], Symmetry = s };
+
+		// ── Four-vertex types ─────────────────────────────────────────────────────
+		_TilingTypes[10] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.12239750492, 0.225335752741], Symmetry = s };
+		_TilingTypes[11] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 3, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.12239750492, 0.225335752741, 0.5], Symmetry = s };
+		_TilingTypes[12] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 3, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.12239750492, 0.225335752741, 0.225335752741], Symmetry = s };
+		_TilingTypes[13] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 1, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.216506350946], Symmetry = s };
+		_TilingTypes[14] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.104512294489, 0.65], Symmetry = s };
+		_TilingTypes[17] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.230769230769, 0.225335752741], Symmetry = s };
+		_TilingTypes[20] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.452827026611, 0.5], Symmetry = s };
+		_TilingTypes[22] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 1, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.230769230769], Symmetry = s };
+		_TilingTypes[23] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.230769230769, 0.5], Symmetry = s };
+		_TilingTypes[24] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.5, 0.102564102564], Symmetry = s };
+		_TilingTypes[25] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.230769230769, 0.869565217391], Symmetry = s };
+		_TilingTypes[26] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 4, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.5, 0.230769230769, 0.5, 0.5], Symmetry = s };
+		_TilingTypes[27] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 3, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.230769230769, 0.5, 0.230769230769], Symmetry = s };
+		_TilingTypes[28] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 3, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.5, 0.5, 0.6], Symmetry = s };
+		_TilingTypes[29] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 3, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.5, 0.102564102564, 0.102564102564], Symmetry = s };
+		_TilingTypes[30] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.230769230769, 0.230769230769], Symmetry = s };
+		_TilingTypes[31] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.5], Symmetry = s };
+		_TilingTypes[32] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 1, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.105263157895], Symmetry = s };
+		_TilingTypes[33] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 1, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.196416770201], Symmetry = s };
+		_TilingTypes[34] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [0.5, 0.196416770201], Symmetry = s };
+		_TilingTypes[36] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 1, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [], Symmetry = s };
+		_TilingTypes[37] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [], Symmetry = s };
+		_TilingTypes[38] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 1, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [], Symmetry = s };
+		_TilingTypes[39] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 1, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [], Symmetry = s };
+		_TilingTypes[40] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 1, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [], Symmetry = s };
+		_TilingTypes[41] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [], Symmetry = s };
+		_TilingTypes[42] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [], Symmetry = s };
+		_TilingTypes[43] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [], Symmetry = s };
+		_TilingTypes[44] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [], Symmetry = s };
+		_TilingTypes[45] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [], Symmetry = s };
+		_TilingTypes[46] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [], Symmetry = s };
+		_TilingTypes[47] = new TilingTypeData { EdgeCount = 4, DistinctEdgeShapes = 2, VertexCount = 4, Edges = MakeEdges(4), DefaultParams = [], Symmetry = s };
+
+		// ── Five-vertex types ─────────────────────────────────────────────────────
+		_TilingTypes[49] = new TilingTypeData { EdgeCount = 5, DistinctEdgeShapes = 3, VertexCount = 5, Edges = MakeEdges(5), DefaultParams = [0.12239750492, 0.225335752741], Symmetry = s };
+		_TilingTypes[50] = new TilingTypeData { EdgeCount = 5, DistinctEdgeShapes = 3, VertexCount = 5, Edges = MakeEdges(5), DefaultParams = [0.12239750492, 0.225335752741], Symmetry = s };
+		_TilingTypes[51] = new TilingTypeData { EdgeCount = 5, DistinctEdgeShapes = 3, VertexCount = 5, Edges = MakeEdges(5), DefaultParams = [0.12239750492, 0.225335752741, 0.5], Symmetry = s };
+		_TilingTypes[52] = new TilingTypeData { EdgeCount = 5, DistinctEdgeShapes = 3, VertexCount = 5, Edges = MakeEdges(5), DefaultParams = [0.12239750492, 0.225335752741, 0.225335752741], Symmetry = s };
+		_TilingTypes[53] = new TilingTypeData { EdgeCount = 5, DistinctEdgeShapes = 3, VertexCount = 5, Edges = MakeEdges(5), DefaultParams = [0.5, 0.866025403784], Symmetry = s };
+		_TilingTypes[54] = new TilingTypeData { EdgeCount = 5, DistinctEdgeShapes = 3, VertexCount = 5, Edges = MakeEdges(5), DefaultParams = [0.5, 0.866025403784], Symmetry = s };
+		_TilingTypes[55] = new TilingTypeData { EdgeCount = 5, DistinctEdgeShapes = 4, VertexCount = 5, Edges = MakeEdges(5), DefaultParams = [0.5, 0.5, 0.866025403784], Symmetry = s };
+		_TilingTypes[56] = new TilingTypeData { EdgeCount = 5, DistinctEdgeShapes = 4, VertexCount = 5, Edges = MakeEdges(5), DefaultParams = [0.5, 0.5, 0.866025403784], Symmetry = s };
+		_TilingTypes[57] = new TilingTypeData { EdgeCount = 5, DistinctEdgeShapes = 2, VertexCount = 5, Edges = MakeEdges(5), DefaultParams = [0.5], Symmetry = s };
+		_TilingTypes[58] = new TilingTypeData { EdgeCount = 5, DistinctEdgeShapes = 2, VertexCount = 5, Edges = MakeEdges(5), DefaultParams = [0.5], Symmetry = s };
+		_TilingTypes[59] = new TilingTypeData { EdgeCount = 5, DistinctEdgeShapes = 2, VertexCount = 5, Edges = MakeEdges(5), DefaultParams = [], Symmetry = s };
+		_TilingTypes[61] = new TilingTypeData { EdgeCount = 5, DistinctEdgeShapes = 2, VertexCount = 5, Edges = MakeEdges(5), DefaultParams = [], Symmetry = s };
+		_TilingTypes[62] = new TilingTypeData { EdgeCount = 5, DistinctEdgeShapes = 2, VertexCount = 5, Edges = MakeEdges(5), DefaultParams = [], Symmetry = s };
+		_TilingTypes[64] = new TilingTypeData { EdgeCount = 5, DistinctEdgeShapes = 2, VertexCount = 5, Edges = MakeEdges(5), DefaultParams = [], Symmetry = s };
+
+		// ── Three-vertex types ────────────────────────────────────────────────────
+		_TilingTypes[7]  = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 3, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [0.6, 0.196416770201], Symmetry = s };
+		_TilingTypes[21] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 1, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [0.366873818946], Symmetry = s };
+		_TilingTypes[76] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 2, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [0.366873818946], Symmetry = s };
+		_TilingTypes[77] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 3, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [], Symmetry = s };
+		_TilingTypes[78] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 3, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [0.230769230769], Symmetry = s };
+		_TilingTypes[79] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 2, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [], Symmetry = s };
+		_TilingTypes[81] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 2, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [], Symmetry = s };
+		_TilingTypes[82] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 2, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [], Symmetry = s };
+		_TilingTypes[83] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 2, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [0.196416770201], Symmetry = s };
+		_TilingTypes[84] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 3, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [0.5, 0.196416770201], Symmetry = s };
+		_TilingTypes[85] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 3, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [0.5, 0.196416770201], Symmetry = s };
+		_TilingTypes[86] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 2, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [0.196416770201], Symmetry = s };
+		_TilingTypes[88] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 2, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [], Symmetry = s };
+		_TilingTypes[90] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 1, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [], Symmetry = s };
+		_TilingTypes[91] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 2, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [0.196416770201], Symmetry = s };
+		_TilingTypes[93] = new TilingTypeData { EdgeCount = 3, DistinctEdgeShapes = 1, VertexCount = 3, Edges = MakeEdges(3), DefaultParams = [], Symmetry = s };
 	}
 
 
@@ -269,33 +375,37 @@ public sealed class IsohedralTiling {
 	/// <summary>
 	/// Compute the prototile vertex positions from the current parameter vector and
 	/// the constraints encoded for the chosen isohedral type.
+	/// Generates a regular polygon shape based on vertex count as a geometric approximation.
 	/// </summary>
-	/// <remarks>
-	/// The real per-type geometry logic belongs here. Currently provides a minimal stub:
-	/// type 1 is a unit square/parallelogram and other types place all vertices at origin.
-	/// </remarks>
 	void ComputeVertices() {
 		Debug.Assert(_Data != null, nameof(_Data) + " != null");
 
-		_Vertices = new Vector2[_Data.VertexCount];
+		int n = _Data.VertexCount;
+		_Vertices = new Vector2[n];
 
-		// IMPORTANT:
-		// This is where the real per-type geometry logic goes, using the parameter vector
-		// and the constraints encoded in the original Tactile data.
-		// For now, we provide minimal stubs for demonstration.
+		switch (n) {
+			case 3:
+				// Equilateral triangle with base on the x-axis.
+				_Vertices[0] = new Vector2(0.0, 0.0);
+				_Vertices[1] = new Vector2(1.0, 0.0);
+				_Vertices[2] = new Vector2(0.5, Math.Sqrt(3.0) / 2.0);
+				break;
 
-		if (TypeId == 1) {
-			// Unit square/parallelogram.
-			_Vertices[0] = new Vector2(0, 0);
-			_Vertices[1] = new Vector2(1, 0);
-			_Vertices[2] = new Vector2(1, 1);
-			_Vertices[3] = new Vector2(0, 1);
-		}
-		else {
-			// Placeholder: all at origin.
-			for (int i = 0; i < _Vertices.Length; i++) {
-				_Vertices[i] = new Vector2(0, 0);
-			}
+			case 4:
+				// Unit square.
+				_Vertices[0] = new Vector2(0.0, 0.0);
+				_Vertices[1] = new Vector2(1.0, 0.0);
+				_Vertices[2] = new Vector2(1.0, 1.0);
+				_Vertices[3] = new Vector2(0.0, 1.0);
+				break;
+
+			default:
+				// Regular N-gon centred at (0.5, 0.5) with circumradius 0.5.
+				for (int i = 0; i < n; i++) {
+					double angle = 2.0 * Math.PI * i / n - Math.PI / 2.0;
+					_Vertices[i] = new Vector2(0.5 + 0.5 * Math.Cos(angle), 0.5 + 0.5 * Math.Sin(angle));
+				}
+				break;
 		}
 	}
 
