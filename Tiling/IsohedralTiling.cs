@@ -378,7 +378,7 @@ public sealed class IsohedralTiling {
 	/// <summary>
 	/// Compute the prototile vertex positions from the current parameter vector and
 	/// the constraints encoded for the chosen isohedral type.
-	/// Generates a regular polygon shape based on vertex count as a geometric approximation.
+	/// Generates regular polygon vertex positions based on vertex count.
 	/// </summary>
 	void ComputeVertices() {
 		Debug.Assert(_Data != null, nameof(_Data) + " != null");

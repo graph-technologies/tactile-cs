@@ -9,7 +9,7 @@ namespace TactileCs.Benchmarks;
 
 /// <summary>
 /// Benchmarks for the core hot paths in TactileCs.
-/// Run with: dotnet run -c Release -p TactileCs.Benchmarks
+/// Run with: dotnet run -c Release --project TactileCs.Benchmarks
 /// </summary>
 [SimpleJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]

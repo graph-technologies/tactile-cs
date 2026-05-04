@@ -32,8 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Known limitations
 
-- Only `IsohedralTiling` type 1 has a fully implemented `ComputeVertices` stub; the coefficient-based vertex computation for all 81 types is in progress.
 - `FillRegionBounds` uses a conservative heuristic lattice sweep rather than the fully-precise `FillAlgorithm` from the original C++ Tactile library.
+- Vertex positions are generated as regular polygons (equilateral triangle, unit square, regular N-gon) rather than being computed from the upstream coefficient arrays; a future release will use the full coefficient-based vertex computation.
 
 [Unreleased]: https://github.com/graph-technologies/tactile-cs/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/graph-technologies/tactile-cs/releases/tag/v1.0.0

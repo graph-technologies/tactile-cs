@@ -17,29 +17,24 @@ dotnet add package TactileCs --version 1.0.0
 
 ## Option 2 — GitHub Actions (reusable workflow)
 
-Reference the built-in reusable installer workflow from any GitHub Actions job.
+Reference the built-in reusable installer workflow from any GitHub Actions workflow.
 
 ```yaml
 jobs:
+  install-tactilecs:
+    uses: graph-technologies/tactile-cs/.github/workflows/install-tactile-cs.yml@main
+    with:
+      version: '1.0.0'          # or 'latest'
+      target-framework: net8.0
+      install-dir: ./lib/TactileCs
+
   build:
+    needs: install-tactilecs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      # Install TactileCs DLLs directly
-      - name: Install TactileCs
-        uses: graph-technologies/tactile-cs/.github/workflows/install-tactile-cs.yml@main
-        with:
-          version: '1.0.0'          # or 'latest'
-          target-framework: net8.0
-          install-dir: ./lib/TactileCs
-```
-
-The workflow outputs the resolved `version` so you can reference it in later steps:
-
-```yaml
       - name: Use installed version
-        run: echo "Installed TactileCs ${{ steps.install.outputs.version }}"
+        run: echo "Installed TactileCs ${{ needs.install-tactilecs.outputs.version }}"
 ```
 
 ### Inputs
