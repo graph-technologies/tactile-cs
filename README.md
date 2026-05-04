@@ -25,7 +25,7 @@ Detailed folder-level documentation:
 - [`Diagnostics/README.md`](Diagnostics/README.md)
 - [`Gpu/README.md`](Gpu/README.md)
 
-## Core API's
+## Core APIs
 
 | API | Inputs | Outputs |
 | --- | --- | --- |
