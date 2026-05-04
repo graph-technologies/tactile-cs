@@ -1,14 +1,13 @@
-﻿# TactileCs
+﻿# Tactile CS
 
 [![CI](https://github.com/graph-technologies/tactile-cs/actions/workflows/ci.yml/badge.svg)](https://github.com/graph-technologies/tactile-cs/actions/workflows/ci.yml)
 [![NuGet](https://img.shields.io/nuget/v/TactileCs.svg)](https://www.nuget.org/packages/TactileCs)
 
-C# / .NET 8 port of the core isohedral tiling geometry from Craig S. Kaplan’s
-[Tactile](https://github.com/isohedral/tactile) library.
+A C# / .NET 8 port of the core isohedral tiling geometry from Craig S. Kaplan’s [Tactile](https://github.com/isohedral/tactile) library.
 
-This project focuses on the **geometry, tiling, and tiling-analysis engine**, not rendering.
+This project focuses on the development of core geometry, tiling, and analysis engines, not rendering - although attention is paid to the CUDA-acceleration of queries and operations, with CPU fallback. Now that the core library has been ported over, work has shifted to the expansion of the capabilities of the library as well as the mathematical completeness of the tilings.
 
-## Repository structure
+## Repository Structure
 
 | Folder | Primary contents | Inputs | Outputs |
 | --- | --- | --- | --- |
@@ -44,7 +43,7 @@ Detailed folder-level documentation:
 | `GpuAccelerator.BatchDistanceSquared(setA, setB)` | Two `Vector2[]` sets | Flat distance² matrix (GPU or CPU fallback) |
 | `GpuAccelerator.BatchPointInPolygon(polygon, points)` | Polygon + query `Vector2[]` | Boolean containment results (GPU or CPU fallback) |
 
-## Example
+## Examples
 
 ```csharp
 using TactileCs.Geometry;
@@ -62,7 +61,7 @@ if (origin is not null) {
 }
 ```
 
-### Logging and performance monitoring
+### Logging & Performance Monitoring
 
 ```csharp
 using Microsoft.Extensions.Logging;
@@ -79,7 +78,7 @@ foreach (var m in metrics)
     Console.WriteLine(m);
 ```
 
-### GPU-accelerated batch geometry
+### GPU-Accelerated Batch Geometry
 
 ```csharp
 using TactileCs.Gpu;
@@ -123,4 +122,4 @@ This is a derivative work of:
 > Tactile – Isohedral tilings and decorated tilings  
 > Copyright (c) 2018, Craig S. Kaplan
 
-used under the **BSD 3-Clause License**. See `LICENSE` for full terms.
+used under the BSD 3-Clause License. See `LICENSE` for full terms.
