@@ -14,7 +14,7 @@ This project focuses on the development of core geometry, tiling, and analysis e
 | `Geometry/` | Foundational 2D primitives and helper algorithms | Points, vectors, transforms, polygon vertex lists | Distances, intersections, centroids, bounds, transformed geometry |
 | `Tiling/` | Isohedral tiling engine and symmetry definitions | Tiling types, parameters, sample bounds | Prototiles, tile transforms, colours, graph views |
 | `Tiling/Analysis/` | Graph-oriented tile analysis | Sample regions and generated cells | Neighbors, hop distance, shortest paths, components, degrees |
-| `Diagnostics/` | Logging facade and performance monitoring | `ILoggerFactory`, operation names | Structured logs, timing metrics (count, min, max, avg) |
+| `Diagnostics/` | Logging facade, performance monitoring, and CLI presentation | `ILoggerFactory`, operation names, metrics collections | Structured logs, timing metrics (count, min, max, avg), formatted console tables and progress bars |
 | `Gpu/` | Optional CUDA-accelerated geometry operations | Point sets, polygons, query points | Distance matrices, containment results (with automatic CPU fallback) |
 
 Detailed folder-level documentation:
@@ -40,8 +40,15 @@ Detailed folder-level documentation:
 | `TilingGraph.GetConnectedComponents(includeCornerNeighbours)` | Adjacency mode | Connected components in the sampled graph |
 | `TactileLogger.Configure(factory)` | `ILoggerFactory` from your DI container | Enables structured logging throughout the library |
 | `PerformanceMonitor.Default.BeginOperation(name)` | Operation name | Disposable timer; metrics via `GetAllMetrics()` |
+| `ConsoleReporter.WriteMetricsTable(metrics)` | `IEnumerable<OperationMetrics>` | Formatted metrics table to console (or any `TextWriter`) |
+| `ConsoleReporter.CreateProgressBar(label, total)` | Label + total steps | `IProgress<int>` progress bar printed to console |
 | `GpuAccelerator.BatchDistanceSquared(setA, setB)` | Two `Vector2[]` sets | Flat distance² matrix (GPU or CPU fallback) |
+| `GpuAccelerator.BatchDistance(setA, setB)` | Two `Vector2[]` sets | Flat Euclidean distance matrix (GPU or CPU fallback) |
 | `GpuAccelerator.BatchPointInPolygon(polygon, points)` | Polygon + query `Vector2[]` | Boolean containment results (GPU or CPU fallback) |
+| `GpuAccelerator.BatchTransformPoints(transform, points)` | `Transform2D` + query `Vector2[]` | Batch-transformed points (GPU or CPU fallback) |
+| `GpuAccelerator.BatchMinDistanceToPolygonEdge(polygon, points)` | Polygon + query `Vector2[]` | Per-point minimum distance to any polygon edge |
+| `GpuAccelerator.GetAllDeviceInfos()` | – | All CUDA devices with CC, memory, driver info |
+| `GpuAccelerator.TryGetDeviceInfo(index, out info)` | Device index | Single-device snapshot; includes min-requirements check |
 
 ## Examples
 
@@ -84,6 +91,11 @@ foreach (var m in metrics)
 using TactileCs.Gpu;
 using TactileCs.Geometry;
 
+// Inspect installed GPUs and check minimum requirements
+var devices = GpuAccelerator.GetAllDeviceInfos();
+foreach (var d in devices)
+    Console.WriteLine(d.ToDiagnosticString());
+
 var accel = new GpuAccelerator();
 
 // Batch squared-distance matrix (uses CUDA when available, CPU otherwise)
@@ -91,10 +103,39 @@ Vector2[] setA = [ new(0, 0), new(1, 1) ];
 Vector2[] setB = [ new(2, 2), new(3, 3) ];
 double[] distSq = accel.BatchDistanceSquared(setA, setB);
 
+// Batch Euclidean distance matrix
+double[] dist = accel.BatchDistance(setA, setB);
+
 // Batch point-in-polygon
 var polygon = new Polygon([ new Vector2(0, 0), new(10, 0), new(10, 10), new(0, 10) ]);
 Vector2[] points = [ new(5, 5), new(20, 20) ];
 bool[] inside = accel.BatchPointInPolygon(polygon, points);
+
+// Batch affine transform
+var rot = Transform2D.CreateRotation(Math.PI / 4);
+Vector2[] rotated = accel.BatchTransformPoints(rot, points);
+
+// Batch minimum distance to polygon edge
+double[] edgeDist = accel.BatchMinDistanceToPolygonEdge(polygon, points);
+```
+
+### CLI Presentation Helpers
+
+```csharp
+using TactileCs.Diagnostics;
+
+// Formatted section heading, status lines, and metrics table
+ConsoleReporter.WriteSection("Performance Summary");
+ConsoleReporter.WriteStatus("CUDA available", GpuAccelerator.IsCudaAvailable.ToString());
+ConsoleReporter.WriteMetricsTable(PerformanceMonitor.Default.GetAllMetrics());
+
+// In-place progress bar
+using var bar = ConsoleReporter.CreateProgressBar("Filling region", total: 1000);
+for (int i = 0; i < 1000; i++)
+{
+    // ... do work ...
+    bar.Report(i + 1);
+}
 ```
 
 ## Status
@@ -104,7 +145,9 @@ bool[] inside = accel.BatchPointInPolygon(polygon, points);
 - Graph-analysis layer for sampled tile neighborhoods, distances, paths, and connectivity.
 - Structured logging via `Microsoft.Extensions.Logging` (opt-in, silent by default).
 - Performance monitoring with per-operation timing metrics.
-- Optional CUDA GPU acceleration for batch geometry operations (transparent CPU fallback).
+- CLI presentation helpers (`ConsoleReporter`) for metrics tables, progress bars, and status lines.
+- Optional CUDA GPU acceleration: squared distance, Euclidean distance, point-in-polygon, batch transform, minimum polygon-edge distance – all with transparent CPU fallback.
+- GPU hardware detection and minimum-requirements checks (`GpuDeviceInfo`, `GpuRequirements`).
 - NuGet package: `dotnet add package TactileCs`
 - CI/CD: automated build, test, and release pipeline via GitHub Actions.
 
