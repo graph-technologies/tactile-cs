@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="TactileCs.csproj" />
   <Project Path="TactileCs.Tests/TactileCs.Tests.csproj" />
+  <Project Path="TactileCs.Benchmarks/TactileCs.Benchmarks.csproj" />
 </Solution>

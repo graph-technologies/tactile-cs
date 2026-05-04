@@ -5,7 +5,7 @@
 		<RootNamespace>TactileCs</RootNamespace>
 		<LangVersion>latest</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefaultItemExcludes>$(DefaultItemExcludes);TactileCs.Tests/**</DefaultItemExcludes>
+		<DefaultItemExcludes>$(DefaultItemExcludes);TactileCs.Tests/**;TactileCs.Benchmarks/**</DefaultItemExcludes>
 
 		<!-- NuGet package identity -->
 		<PackageId>TactileCs</PackageId>
