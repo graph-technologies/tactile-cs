@@ -1,5 +1,8 @@
 ﻿# TactileCs
 
+[![CI](https://github.com/graph-technologies/tactile-cs/actions/workflows/ci.yml/badge.svg)](https://github.com/graph-technologies/tactile-cs/actions/workflows/ci.yml)
+[![NuGet](https://img.shields.io/nuget/v/TactileCs.svg)](https://www.nuget.org/packages/TactileCs)
+
 C# / .NET 8 port of the core isohedral tiling geometry from Craig S. Kaplan’s
 [Tactile](https://github.com/isohedral/tactile) library.
 
@@ -97,12 +100,14 @@ bool[] inside = accel.BatchPointInPolygon(polygon, points);
 
 ## Status
 
-- Table-driven tiling wrapper with a built-in Type 1 sample definition.
-- Geometry primitives are implemented and documented.
-- A graph-analysis layer is available for sampled tile neighborhoods, distances, paths, and connectivity analysis.
+- All 81 isohedral tiling types supported (`IsohedralTiling.AllTypes`).
+- Geometry primitives fully implemented and documented.
+- Graph-analysis layer for sampled tile neighborhoods, distances, paths, and connectivity.
 - Structured logging via `Microsoft.Extensions.Logging` (opt-in, silent by default).
 - Performance monitoring with per-operation timing metrics.
 - Optional CUDA GPU acceleration for batch geometry operations (transparent CPU fallback).
+- NuGet package: `dotnet add package TactileCs`
+- CI/CD: automated build, test, and release pipeline via GitHub Actions.
 
 ## Build
 

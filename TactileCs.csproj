@@ -3,15 +3,24 @@
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<RootNamespace>TactileCs</RootNamespace>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefaultItemExcludes>$(DefaultItemExcludes);TactileCs.Tests/**</DefaultItemExcludes>
+		<DefaultItemExcludes>$(DefaultItemExcludes);TactileCs.Tests/**;TactileCs.Benchmarks/**</DefaultItemExcludes>
+
+		<!-- NuGet package identity -->
+		<PackageId>TactileCs</PackageId>
+		<Version>1.0.0</Version>
+		<PackageDescription>C# / .NET 8 port of Craig S. Kaplan's Tactile isohedral tiling geometry library. Provides the full tiling engine, graph analysis, structured logging, and optional CUDA GPU acceleration.</PackageDescription>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
 	</ItemGroup>
-	
+
+	<!-- Include README in the NuGet package -->
+	<ItemGroup>
+	  <None Include="README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
 </Project>

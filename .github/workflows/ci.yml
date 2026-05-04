@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build & Test (.NET 8)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore tactile-cs.slnx
+
+      - name: Build (Release)
+        run: dotnet build tactile-cs.slnx --no-restore -c Release
+
+      - name: Test with coverage
+        run: |
+          dotnet test tactile-cs.slnx \
+            --no-build \
+            -c Release \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./coverage \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ./coverage/**/*.xml
+          retention-days: 14
+
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+      - name: Generate coverage summary
+        run: |
+          reportgenerator \
+            -reports:"./coverage/**/*.xml" \
+            -targetdir:./coverage-html \
+            -reporttypes:Html \
+            -assemblyfilters:"+TactileCs" \
+            -classfilters:"-TactileCs.Tests*"
+        continue-on-error: true
+
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: ./coverage-html
+          retention-days: 14
+        continue-on-error: true
